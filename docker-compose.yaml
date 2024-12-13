@@ -1,0 +1,153 @@
+version: "3.7"
+services:
+
+  mempool-web:
+    restart: on-failure
+    depends_on:
+      - mempool-api
+    environment:
+      FRONTEND_HTTP_PORT: "8081"
+      BACKEND_MAINNET_HTTP_HOST: "mempool-api"
+    image: mempool/frontend:latest
+    ports:
+      - 8081:8081
+    networks:
+      - nigiri
+
+  mempool-api:
+    depends_on:
+      - mempool-db
+    environment:
+      MEMPOOL_BACKEND: "electrum"
+      ELECTRUM_HOST: "electrs"
+      ELECTRUM_PORT: "50000"
+      ELECTRUM_TLS_ENABLED: "false"
+      CORE_RPC_HOST: "bitcoin"
+      CORE_RPC_PORT: "18443"
+      CORE_RPC_USERNAME: "admin1"
+      CORE_RPC_PASSWORD: "123"
+      DATABASE_ENABLED: "true"
+      DATABASE_HOST: "mempool-db"
+      DATABASE_DATABASE: "mempool"
+      DATABASE_USERNAME: "mempool"
+      DATABASE_PASSWORD: "mempool"
+      STATISTICS_ENABLED: "true"
+    image: mempool/backend:latest
+    restart: on-failure
+    networks:
+      - nigiri
+
+  mempool-db:
+    environment:
+      MYSQL_DATABASE: "mempool"
+      MYSQL_USER: "mempool"
+      MYSQL_PASSWORD: "mempool"
+      MYSQL_ROOT_PASSWORD: "admin"
+    image: mariadb:10.5.8
+    networks:
+      - nigiri
+
+  nbxplorer:
+    image: nicolasdorier/nbxplorer:2.5.14
+    restart: unless-stopped
+    ports:
+      - "32838:32838"
+    expose:
+      - "32838"
+    environment:
+      NBXPLORER_NETWORK: regtest
+      NBXPLORER_CHAINS: "btc"
+      NBXPLORER_BTCRPCURL: http://bitcoin:18443/
+      NBXPLORER_BTCNODEENDPOINT: bitcoin:18444
+      NBXPLORER_BTCRPCUSER: admin1
+      NBXPLORER_BTCRPCPASSWORD: 123
+      NBXPLORER_BIND: 0.0.0.0:32838
+      NBXPLORER_MINGAPSIZE: 5
+      NBXPLORER_MAXGAPSIZE: 10
+      NBXPLORER_VERBOSE: 1
+      NBXPLORER_POSTGRES: User ID=postgres;Include Error Detail=true;Host=postgres;Port=5432;Database=nbxplorer
+      NBXPLORER_EXPOSERPC: 1
+      NBXPLORER_NOAUTH: 1
+    networks:
+      - nigiri
+  
+  postgres:
+    image:  postgres:13.13
+    environment:
+        POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "39372:5432"
+    expose:
+      - "5432"
+    networks:
+      - nigiri
+
+  alice:
+    environment:
+      USERID: ${USERID:-1000}
+      GROUPID: ${GROUPID:-1000}
+    stop_grace_period: 30s
+    image: polarlightning/lnd:0.18.4-beta.rc1
+    container_name: alice
+    hostname: alice
+    command: >-
+      lnd --noseedbackup --debuglevel=debug --trickledelay=5000 --alias=alice
+      --externalip=alice --tlsextradomain=alice --tlsextradomain=alice
+      --tlsextradomain=host.docker.internal --listen=0.0.0.0:9735
+      --rpclisten=0.0.0.0:10009 --restlisten=0.0.0.0:8080 --bitcoin.active
+      --bitcoin.regtest --bitcoin.node=bitcoind
+      --bitcoind.rpchost=bitcoin --bitcoind.rpcuser=admin1
+      --bitcoind.rpcpass=123
+      --bitcoind.zmqpubrawblock=tcp://bitcoin:28332
+      --bitcoind.zmqpubrawtx=tcp://bitcoin:28333
+    restart: always
+    volumes:
+      - ./volumes/lnd/alice:/home/lnd/.lnd
+      - ./volumes/lnd/alice:/root/.lnd
+    expose:
+      - '8080'
+      - '10009'
+      - '9735'
+    ports:
+      - '8082:8080'
+      - '10001:10009'
+      - '9735:9735'
+    networks:
+      - nigiri
+
+  bob:
+    environment:
+      USERID: ${USERID:-1000}
+      GROUPID: ${GROUPID:-1000}
+    stop_grace_period: 30s
+    image: polarlightning/clightning:24.08.1
+    container_name: bob
+    hostname: bob
+    command: >-
+      lightningd --alias=bob --addr=bob --addr=0.0.0.0:9735 --network=regtest
+      --bitcoin-rpcuser=admin1 --bitcoin-rpcpassword=123
+      --bitcoin-rpcconnect=bitcoin --bitcoin-rpcport=18443
+      --log-level=debug --dev-bitcoind-poll=2 --dev-fast-gossip
+      --grpc-port=11001 --log-file=-
+      --log-file=/home/clightning/.lightning/debug.log --clnrest-port=8080
+      --clnrest-protocol=http --clnrest-host=0.0.0.0 --developer
+    restart: always
+    volumes:
+      - ./volumes/c-lightning/bob/lightningd:/home/clightning/.lightning
+      - ./volumes/c-lightning/bob/rest-api:/opt/c-lightning-rest/certs
+      - ./volumes/c-lightning/bob/lightningd:/root/.lightning
+    expose:
+      - '8080'
+      - '11001'
+      - '9735'
+    ports:
+      - '8182:8080'
+      - '11002:11001'
+      - '9836:9735'
+    networks:
+      - nigiri
+  
+  
+networks:
+   nigiri:
+    external: true

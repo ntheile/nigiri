@@ -192,3 +192,11 @@ dotnet run --project BTCPayServer --launch-profile "Bitcoin"
 Troubleshooting
 --------------
 If you change networks or wifi you might need to re-peer your lightning nodes. 
+
+```
+# cln
+lightning-cli --network regtest connect 029e6b664b0edb029af794a09a47fe07f3eb1687a06ab2b33a38b1d775ecbd9c94
+
+# lnd
+lncli -n regtest connect 03571604c46fc96837967ffcb4f2e213394d0a57c511800bc49f3d77bdf1a8c777@bob:9735
+```

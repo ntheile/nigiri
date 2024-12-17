@@ -62,7 +62,7 @@ Note for users of macOS user, see https://github.com/vulpemventures/nigiri#:~:te
 ```
 docker ps | grep nigiri
 ```
-4. Now boot up the extensions. This will start mempool, btcpay server, lnd, and core lightning in the nigiri docker network. If alice (lnd), or bob (cln), do not start up automatically or keep looping, just manually start them after the deps are loaded. 
+4. Now boot up the extensions. This will start mempool, btcpay backend, lnd, and core lightning in the nigiri docker network. If alice (lnd), or bob (cln), do not start up automatically or keep looping, just manually start them after the deps are loaded. 
 ```
 docker compose up -d
 ```
@@ -179,6 +179,8 @@ https://github.com/grubles/cln-cheatsheet
 BTCPay
 ------
 To run BTCPay with the nigiri backend
+- Clone the BTCPay Server code `git clone https://github.com/btcpayserver/btcpayserver.git`
+- Install .net core deps
 - Start BTCPay Server (without their docker deps since we are using nigiri docker config for postgres and nbxplorer)
 ```
 dotnet restore

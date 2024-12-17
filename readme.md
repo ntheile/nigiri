@@ -194,6 +194,9 @@ Troubleshooting
 If you change networks or wifi you might need to re-peer your lightning nodes. 
 
 ```
+# sync the network on the host
+nigiri push 1
+
 # cln
 lightning-cli --network regtest connect 029e6b664b0edb029af794a09a47fe07f3eb1687a06ab2b33a38b1d775ecbd9c94
 

@@ -130,7 +130,7 @@ services:
       --log-level=debug --dev-bitcoind-poll=2 --dev-fast-gossip
       --grpc-port=11001 --log-file=-
       --log-file=/home/clightning/.lightning/debug.log --clnrest-port=8080
-      --clnrest-protocol=http --clnrest-host=0.0.0.0 --developer
+      --clnrest-protocol=http --clnrest-host=0.0.0.0 --developer --experimental-offers
     restart: always
     volumes:
       - ./volumes/c-lightning/bob/lightningd:/home/clightning/.lightning
@@ -144,6 +144,38 @@ services:
       - '8182:8080'
       - '11002:11001'
       - '9836:9735'
+    networks:
+      - nigiri
+
+  carol:
+    environment:
+      USERID: ${USERID:-1000}
+      GROUPID: ${GROUPID:-1000}
+    stop_grace_period: 30s
+    image: polarlightning/clightning:24.08.1
+    container_name: carol
+    hostname: carol
+    command: >-
+      lightningd --alias=carol --addr=carol --addr=0.0.0.0:9735 --network=regtest
+      --bitcoin-rpcuser=admin1 --bitcoin-rpcpassword=123
+      --bitcoin-rpcconnect=bitcoin --bitcoin-rpcport=18443
+      --log-level=debug --dev-bitcoind-poll=2 --dev-fast-gossip
+      --grpc-port=11001 --log-file=-
+      --log-file=/home/clightning/.lightning/debug.log --clnrest-port=8080
+      --clnrest-protocol=http --clnrest-host=0.0.0.0 --developer --experimental-offers
+    restart: always
+    volumes:
+      - ./volumes/c-lightning/carol/lightningd:/home/clightning/.lightning
+      - ./volumes/c-lightning/carol/rest-api:/opt/c-lightning-rest/certs
+      - ./volumes/c-lightning/carol/lightningd:/root/.lightning
+    expose:
+      - '8080'
+      - '11001'
+      - '9735'
+    ports:
+      - '8183:8080'
+      - '11003:11001'
+      - '9837:9735'
     networks:
       - nigiri
   

@@ -174,7 +174,23 @@ https://github.com/grubles/cln-cheatsheet
 
     # 11. pay an invoice
     lightning-cli --network regtest pay lnbcrt*** 
+
+    # 12. create a BOLT 12 offer
+    lightning-cli --network regtest offer any yourofferdescription
+
+    # 13. pay an offer
+    lightning-cli --network=regtest fetchinvoice lno1qgsqvgnwgcg35z6ee2h3yczraddm72xrfua9uve2rlrm9deu7xyfzrckyyp3xk0yn5hqsmwncshd6qt2fagw9zp8ty8su4jdwzzgehp0h9qlrtc
+
+    lightning-cli --network regtest pay lni1qqgz367atterx0tyqcpex275rz6dwq3qqc3xu3s3rg94nj40zfsy866mhu5vxne6tcej5878k2mneuvgjy83vggrzdv7f8fwppka83pwm5qk5n6su2yzwkg0pety6uyy3nwzlw2p7xh4qgqxyfhyvyg6pdvu4tcjvpp7kkal9rp57wj7xv4pl3ajku70rzy3pafqyp7stqss9v4xt57qe2nym35ea8yhhsw4yepl870da8eg3j5ufdrltmcggqgr5zvqxy6eujwjuzrd60zzahgpdf84pc5gyavs7rjkf4cgfrxu97u5rud0qvzymdmhgmzpghl4aw7vqrf5pgmx0wpqvm9pacv9yqpqa0lw6p82zqgzqf4uw3fjz026ujuhacrrsuwg983vdl2zzc4xtn9e00ldukmwrdxqqvh8q8fsgeyyhlkdvmtpm8f0cy6t208n0vy9tvqxtv8n92wleygrnydp6ck752p6l0haqj4csuw95yp8rfazrsqqqqqqqqqqqqqqpgqqqqqqqqqqqqqayjedltzjqqqqqq9yq3nk8g6e4qs8x673lv7l4u2dpqcqp7gc4ejzge84qw4u3yzkpadgfpc5w8kj2942qgrapvppqvf4neya9cyxm57y9mwsz6j02r3gsf6epu89vntssjxdctaeg8c6luzqqkuzqqter9s9egd9mr3txfj9arnk6jmf9w8alnnkdxsjwzu35z6nlh8656h0nts5d0kwdnnx5vl9td0xjwz4syz36ntzh0u7p3p6wdq
+
+    # 14. decode
+    lightning-cli --network regtest decode
+
+    # 15. listen for a payment hook
+    lightning-cli --network=regtest waitanyinvoice
     ```
+
+    
 
 BTCPay
 ------
